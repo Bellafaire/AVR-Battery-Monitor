@@ -48,7 +48,7 @@ class BatteryMonitor {
 	bool isLow();
 	bool isCritical();
 	bool isHigh();
-    float getCurrentBatteryVoltage(int adcRead);
+    float getCurrentBatteryVoltage();
   private:
     float getVoltageDividerFactor();
     void highVoltage();
@@ -59,7 +59,7 @@ class BatteryMonitor {
     long _R1 = 20000;
     long _R2 = 4700;
     float _lowVoltage = 3.2;
-    float _highVoltage = 4.5;
+    float _highVoltage = 4.3;
     float _criticalVoltage = 2.8;
     int _goodNotificationPin;
     int _lowNotificationPin;

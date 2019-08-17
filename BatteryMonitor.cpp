@@ -74,14 +74,14 @@ float BatteryMonitor::getVoltageDividerFactor() {
   return ((float)_R2) / ((float)_R1 + (float)_R2);
 }
 
-float BatteryMonitor::getCurrentBatteryVoltage(int adcRead) {
+float BatteryMonitor::getCurrentBatteryVoltage() {
   float voltstep = 1.1 / 1024;
-  float adcReadVoltage = voltstep * adcRead;
+  float adcReadVoltage = voltstep * readADC();
   return adcReadVoltage / getVoltageDividerFactor();
 }
 
 void BatteryMonitor::checkBattery() {
-  float batVoltage = getCurrentBatteryVoltage(readADC());
+  float batVoltage = getCurrentBatteryVoltage();
   if (batVoltage > _highVoltage) {
     highVoltage();
   } else if (batVoltage > _lowVoltage ) {
@@ -94,19 +94,19 @@ void BatteryMonitor::checkBattery() {
 }
 
 bool BatteryMonitor::isGood() {
-  float batVoltage = getCurrentBatteryVoltage(readADC());
+  float batVoltage = getCurrentBatteryVoltage();
   return (batVoltage > _lowVoltage && batVoltage < _highVoltage);
 }
 bool BatteryMonitor::isLow() {
-  float batVoltage = getCurrentBatteryVoltage(readADC());
+  float batVoltage = getCurrentBatteryVoltage();
   return (batVoltage > _criticalVoltage && batVoltage < _lowVoltage);
 }
 bool BatteryMonitor::isCritical() {
-  float batVoltage = getCurrentBatteryVoltage(readADC());
+  float batVoltage = getCurrentBatteryVoltage();
   return (batVoltage < _criticalVoltage);
 }
 bool BatteryMonitor::isHigh() {
-  float batVoltage = getCurrentBatteryVoltage(readADC());
+  float batVoltage = getCurrentBatteryVoltage();
   return (batVoltage > _highVoltage);
 }
 
