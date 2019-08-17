@@ -23,9 +23,9 @@ alternatively the battery can be monitored using the included functions `isGood(
 
 using these you can configure your own actions at various battery states. If that's not enough control for you then you can also use the function `getCurrentBatteryVoltage()` which will return the current battery voltage as a float. 
 
-Additionally the library allows you to configure your own voltage ranges, resistors, and action pin:. 
+Additionally the library allows you to configure your own voltage ranges, resistors, and action pin:
 * `setGoodNotificationPin(int pin)` sets the pin to be turned HIGH if the battery voltage is in its ideal range
-* `setLowNotificationPin(int pin)` sets the pin to be turned HIGH if the battery voltage is below its ideal range
+* `setLowNotificationPin(int pin)` sets the pin to be turned HIGH if the battery voltage is in the low range but above critical
 * `setLowVoltage(float voltage)` sets the low voltage value (default value is 3.2V)
 * `setHighVoltage(float voltage)` sets the high voltage (overvoltage) value (default value is 4.3V)
 * `setCriticalVoltage(float voltage)` sets the critical voltage level (default value is 2.8V)
