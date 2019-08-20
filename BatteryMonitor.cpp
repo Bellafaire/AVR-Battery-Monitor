@@ -38,7 +38,7 @@ BatteryMonitor::BatteryMonitor(int batteryPin, int currentSensePin) {
 }
 
 float BatteryMonitor::getBatteryCurrent() {
-  return ((1.1 * ((float)1024 - (float)readCurrentSense()))/((float)readReference() * (float)_senseResistance));
+  return ((1.1 * ((float)readBatteryVoltage() - (float)readCurrentSense()))/((float)readReference() * (float)_senseResistance));
 }
 
 
