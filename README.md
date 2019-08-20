@@ -21,7 +21,11 @@ Currently supported functions for this library include:
 ### Functions
 
 `void setCurrentSensePin(int currentSensePin)` - sets the current sense pin
+
 `void setCurrentSenseResistance(float r)` - sets the shunt resistor value, use whatever works for you. 
+
 `float getCurrentBatteryVoltage()` - returns the current battery voltage as a floating point value.
+
 `float getCurrentOperatingVoltage()` - returns the current voltage the micro-controller is operating at (intended for circuits powered by boost-converters, currently has limited testing)
+
 `float getBatteryCurrent()` - returns the amount of current (in amps) being drawn from the battery (waiting on parts to test this thoroughly) 
