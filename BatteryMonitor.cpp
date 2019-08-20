@@ -26,12 +26,12 @@
 #include "BatteryMonitor.h"
 
 BatteryMonitor::BatteryMonitor(int batteryPin) {
-  _analogPin = batteryPin;
+  _batPin = batteryPin;
   pinMode(batteryPin, INPUT);
 }
 
 BatteryMonitor::BatteryMonitor(int batteryPin, int currentSensePin) {
-  _analogPin = batteryPin;
+  _batPin = batteryPin;
   pinMode(batteryPin, INPUT);
   _sensePin = currentSensePin;
   pinMode(_sensePin, INPUT);
@@ -76,6 +76,32 @@ int BatteryMonitor::readCurrentSense(){
 	
 }
 
+int BatteryMonitor::readBatteryVoltage(){
+	//set adc to use VCC as reference
+	ADMUX = 0b01000000;
+  
+	  switch (_batPin) {
+    case A0: ADMUX |= 0b00000000; break;
+    case A1: ADMUX |= 0b00000001; break;
+    case A2: ADMUX |= 0b00000010; break;
+    case A3: ADMUX |= 0b00000011; break;
+    case A4: ADMUX |= 0b00000100; break;
+    case A5: ADMUX |= 0b00000101; break;
+    case A6: ADMUX |= 0b00000110; break;
+    case A7: ADMUX |= 0b00000111; break;
+  }
+    ADCSRA |= (1 << ADEN) | (1 << ADSC);
+  while (ADCSRA & (1 << ADSC)) {
+    delayMicroseconds(10);
+  }
+
+  int val = 0;
+  val |= ADCL;
+  val |= (ADCH << 8);
+  return val;
+	
+}
+
 int BatteryMonitor::readReference(){
   //set adc to use VCC as reference and read the internal bandgap reference
   ADMUX = 0b01001110;
@@ -94,5 +120,9 @@ int BatteryMonitor::readReference(){
 }
 
 float BatteryMonitor::getCurrentBatteryVoltage(){
+  return (((float)1.1 * (float)readBatteryVoltage()) / (float)readReference());
+}
+
+float BatteryMonitor::getCurrentOperatingVoltage(){
   return (((float)1.1 * (float)1024) / (float)readReference());
 }

@@ -25,41 +25,28 @@ THE SOFTWARE.
 
 #include <BatteryMonitor.h>
 
-/*  in order to measure the battery voltage consistently the arduino must use its own internal 
- *   voltage reference. To use this library a capacitor MUST be attached between the AREF pin and
- *   ground.  
- */
-BatteryMonitor bat = BatteryMonitor(A1);
+#define batVoltagePin A0 //connect directly to positive terminal of the battery
+#define batCurrentPin A1 //connect to the other side of a shunt resistor going from the positive battery terminal to the rest of your circuit
 
-void setup() {
-  /*Configuring voltage divider connected to ADC pin, any values can be used here
-     but it is recommended that R2/(R1 + R2) < 0.2
-     default values are 20K for R1 and 4.7K for R2
-  */
-  bat.setR1(20000);
-  bat.setR2(4700);
+BatteryMonitor bat = BatteryMonitor(batVoltagePin, batCurrentPin);
 
-  /*Configuring the thresholds for battery voltage
-      Defaults are:
-         lowVoltage = 3.2;
-         highVoltage = 4.5;
-         criticalVoltage = 2.8;
-  */
-  bat.setLowVoltage(3.3);
-  bat.setCriticalVoltage(3.0);
-  bat.setHighVoltage(4.3);
+void setup(){
+  /* You can use whatever shunt resistor you want to as long as it supplies your
+   * circuit. however current reading resolution is reduced significantly below 0.05 ohms, so going lower
+   * than that is not recomended. 
+   */
+  bat.setCurrentSenseResistance(0.05);
 }
 
 void loop() {
-  if (bat.isGood()) {
-    //TODO if battery voltage is good
-  } else if (bat.isLow()) {
-    //TODO if battery voltage is low
-  } else if (bat.isCritical()) {
-    //TODO if battery voltgae is critical
-  } else {
-    //TODO if battery voltage is high
+
+  if(bat.getBatteryCurrent() > 1){
+    //something to do if current is greater than 1 Amp
   }
+  if(bat.getBatteryCurrent() < .2){
+    //something to do if current is less than 200ma
+  }
+
 }
 
 

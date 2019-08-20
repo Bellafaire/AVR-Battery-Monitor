@@ -37,14 +37,15 @@ class BatteryMonitor {
     BatteryMonitor(int batteryPin, int currentSensePin);
     void setCurrentSensePin(int currentSensePin);
     void setCurrentSenseResistance(float r);
-    void checkBattery();
     float getCurrentBatteryVoltage();
+	float getCurrentOperatingVoltage();
     float getBatteryCurrent();
 	
   private: 
+	int readBatteryVoltage();
     int readReference();
 	int readCurrentSense();
-    int _analogPin;
+    int _batPin;
     float _senseResistance = 0.05;
     int _sensePin;
 };

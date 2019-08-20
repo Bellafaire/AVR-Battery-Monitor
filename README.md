@@ -1,33 +1,27 @@
 # AVR-Battery-Monitor
-A simple library for small projects utilizing the internal ADC reference of the arduino nano, uno, and micro. Uses only an external capacitor and 2 resistors to monitor a lithium ion battery for over voltage and under voltage.
+A simple and straight-forward library for monitoring batteries powering an Arduino or AVR board using the ATmega328 (support for other micro-controllers is in the works). Uses the absolute minimum of external components, requiring only a current shunt to monitor current use. 
 
 ## How to Use
-Following this example schematic use a capacitor of any value and connect it across AREF and GND then add a voltage divder such that (R2)/(R1 + R2) < 0.2 
+
+
 ![yspyG](https://github.com/yspyG/AVR-Battery-Monitor/blob/master/etc/schematic.png?raw=true "yspyG")
 
-This library configures the ADC to use the internal 1.1v reference so be aware that any ADC readings you take after initializing this library will be on a scale from 0-1.1V rather than the standard 0-5V. Also this library does not support over-current protection currently, consider adding a polyfuse or other current limiting device to a project using this library. 
+This library utilizes the AVR's internal 1.1V bandgap reference to determine the actual voltage at its pins, it requires only a the connections shown in the schematic above. The shunt reistor is technically optional if you don't need the current measurements. For more information about how the library works check out the hackaday.io page here: https://hackaday.io/project/167181-lithium-ion-battery-monitor-library-for-arduino
 
+Any value of shunt resistor can be used, for reading smaller currents larger shunt resistors should be used. A resistor value of .05 ohms will give a resolution of about 100mA. 
 ## Included functions
 
-`checkBattery()` automatically checks battery voltage and carries out default actions depending on the battery voltage. 
-* battery high (overvoltage) causes both the lowVoltage and batteryGood indicators pins to go HIGH
-* voltage between highVoltage and lowVoltage causes the batteryGood indicator pin to go HIGH
-* voltage between lowVoltage and criticalVoltage causes the lowVoltage indicator pin to go HIGH
-* voltage below the criticalVoltage causes the arduino to enter deepSleep and turn all output pins low. 
+Currently supported functions for this library include: 
 
-alternatively the battery can be monitored using the included functions `isGood()`, `isHigh()`, `isLow()`, `isCritical()`. 
-* `isHigh()` returns true if battery voltage > highVoltage
-* `isGood()` returns true if battery voltage > lowVoltage && < highVoltage 
-* `isLow()` returns true if battery voltage > criticalVoltage && < lowVoltage
-* `isCritical()` returns true if battery voltage < criticalVoltage
+### Constructors 
 
-using these you can configure your own actions at various battery states. If that's not enough control for you then you can also use the function `getCurrentBatteryVoltage()` which will return the current battery voltage as a float. 
+`BatteryMonitor(int batteryPin)` - Initializing only the battery monitor pin connected to the positive terminal of the battery. 
+`BatteryMonitor(int batteryPin, int currentSensePin)` - Initializing the battery monitor pin and the currentSensePin (both of these should read as close to the shunt resistor as possible)
 
-Additionally the library allows you to configure your own voltage ranges, resistors, and action pin:
-* `setGoodNotificationPin(int pin)` sets the pin to be turned HIGH if the battery voltage is in its ideal range
-* `setLowNotificationPin(int pin)` sets the pin to be turned HIGH if the battery voltage is in the low range but above critical
-* `setLowVoltage(float voltage)` sets the low voltage value (default value is 3.2V)
-* `setHighVoltage(float voltage)` sets the high voltage (overvoltage) value (default value is 4.3V)
-* `setCriticalVoltage(float voltage)` sets the critical voltage level (default value is 2.8V)
-* `setR1(long value)` sets the value of R1 to value (in ohms so 10k = 10000)
-* `setR2(long value)` sets the value of R2 to value (same as above)
+### Functions
+
+`void setCurrentSensePin(int currentSensePin)` - sets the current sense pin
+`void setCurrentSenseResistance(float r)` - sets the shunt resistor value, use whatever works for you. 
+`float getCurrentBatteryVoltage()` - returns the current battery voltage as a floating point value.
+`float getCurrentOperatingVoltage()` - returns the current voltage the micro-controller is operating at (intended for circuits powered by boost-converters, currently has limited testing)
+`float getBatteryCurrent()` - returns the amount of current (in amps) being drawn from the battery (waiting on parts to test this thoroughly) 
