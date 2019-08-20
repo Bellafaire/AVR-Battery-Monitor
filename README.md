@@ -16,6 +16,7 @@ Currently supported functions for this library include:
 ### Constructors 
 
 `BatteryMonitor(int batteryPin)` - Initializing only the battery monitor pin connected to the positive terminal of the battery. 
+
 `BatteryMonitor(int batteryPin, int currentSensePin)` - Initializing the battery monitor pin and the currentSensePin (both of these should read as close to the shunt resistor as possible)
 
 ### Functions
