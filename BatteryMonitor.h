@@ -43,6 +43,7 @@ class BatteryMonitor {
 	
   private: 
 	int readBatteryVoltage();
+	int readRefAtVCC();
     int readReference();
 	int readCurrentSense();
     int _batPin;
