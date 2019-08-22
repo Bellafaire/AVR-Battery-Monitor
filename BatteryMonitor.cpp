@@ -38,7 +38,7 @@ BatteryMonitor::BatteryMonitor(int batteryPin, int currentSensePin) {
 }
 
 float BatteryMonitor::getBatteryCurrent() {
-  return ((1.1 * ((float)readBatteryVoltage() - (float)readCurrentSense()))/((float)readReference() * (float)_senseResistance));
+  return ((1.1 * ((float)readBatteryVoltage() - (float)readCurrentSense())) / ((float)readReference() * (float)_senseResistance));
 }
 
 
@@ -50,11 +50,11 @@ void BatteryMonitor::setCurrentSenseResistance(float r) {
   _senseResistance = r;
 }
 
-int BatteryMonitor::readCurrentSense(){
-	//set adc to use AREF as reference
-	ADMUX = 0b00000000;
-  
-	  switch (_sensePin) {
+int BatteryMonitor::readCurrentSense() {
+  //set adc to use AREF as reference
+  ADMUX = 0b00000000;
+
+  switch (_sensePin) {
     case A0: ADMUX |= 0b00000000; break;
     case A1: ADMUX |= 0b00000001; break;
     case A2: ADMUX |= 0b00000010; break;
@@ -64,7 +64,7 @@ int BatteryMonitor::readCurrentSense(){
     case A6: ADMUX |= 0b00000110; break;
     case A7: ADMUX |= 0b00000111; break;
   }
-    ADCSRA |= (1 << ADEN) | (1 << ADSC);
+  ADCSRA |= (1 << ADEN) | (1 << ADSC);
   while (ADCSRA & (1 << ADSC)) {
     delayMicroseconds(10);
   }
@@ -73,14 +73,14 @@ int BatteryMonitor::readCurrentSense(){
   val |= ADCL;
   val |= (ADCH << 8);
   return val;
-	
+
 }
 
-int BatteryMonitor::readBatteryVoltage(){
-	//set adc to use AREF as reference
-	ADMUX = 0b00000000;
-  
-	  switch (_batPin) {
+int BatteryMonitor::readBatteryVoltage() {
+  //set adc to use AREF as reference
+  ADMUX = 0b00000000;
+
+  switch (_batPin) {
     case A0: ADMUX |= 0b00000000; break;
     case A1: ADMUX |= 0b00000001; break;
     case A2: ADMUX |= 0b00000010; break;
@@ -90,7 +90,7 @@ int BatteryMonitor::readBatteryVoltage(){
     case A6: ADMUX |= 0b00000110; break;
     case A7: ADMUX |= 0b00000111; break;
   }
-    ADCSRA |= (1 << ADEN) | (1 << ADSC);
+  ADCSRA |= (1 << ADEN) | (1 << ADSC);
   while (ADCSRA & (1 << ADSC)) {
     delayMicroseconds(10);
   }
@@ -99,40 +99,14 @@ int BatteryMonitor::readBatteryVoltage(){
   val |= ADCL;
   val |= (ADCH << 8);
   return val;
-	
+
 }
 
-int BatteryMonitor::readRefAtVCC(){
-	//set adc to use AREF as reference
-	ADMUX = 0b01000000;
-  
-	  switch (_batPin) {
-    case A0: ADMUX |= 0b00000000; break;
-    case A1: ADMUX |= 0b00000001; break;
-    case A2: ADMUX |= 0b00000010; break;
-    case A3: ADMUX |= 0b00000011; break;
-    case A4: ADMUX |= 0b00000100; break;
-    case A5: ADMUX |= 0b00000101; break;
-    case A6: ADMUX |= 0b00000110; break;
-    case A7: ADMUX |= 0b00000111; break;
-  }
-    ADCSRA |= (1 << ADEN) | (1 << ADSC);
-  while (ADCSRA & (1 << ADSC)) {
-    delayMicroseconds(10);
-  }
+int BatteryMonitor::readReference() {
 
-  int val = 0;
-  val |= ADCL;
-  val |= (ADCH << 8);
-  return val;
-	
-}
-
-
-int BatteryMonitor::readReference(){
-	//set adc to use AREF as reference
+  //set adc to use AREF as reference then select the internal reference as our ideal read
   ADMUX = 0b00001110;
-
+  delay(10);
 
   ADCSRA |= (1 << ADEN) | (1 << ADSC);
   while (ADCSRA & (1 << ADSC)) {
@@ -143,13 +117,13 @@ int BatteryMonitor::readReference(){
   ref |= ADCL;
   ref |= (ADCH << 8);
   return ref;
-	
+
 }
 
-float BatteryMonitor::getCurrentBatteryVoltage(){
+float BatteryMonitor::getCurrentBatteryVoltage() {
   return (((float)1.1 * (float)readBatteryVoltage()) / (float)readReference());
 }
 
-float BatteryMonitor::getCurrentOperatingVoltage(){
-  return (((float)1.1 * (float)1024) / (float)readRefAtVCC());
+float BatteryMonitor::getCurrentOperatingVoltage() {
+  return (((float)1.1 * (float)1024) / (float)readReference());
 }
