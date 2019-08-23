@@ -3,8 +3,8 @@ A simple and straight-forward library for monitoring batteries powering an Ardui
 
 ## How to Use
 
-![yspyG](https://github.com/yspyG/AVR-Battery-Monitor/blob/master/etc/schematic.png?raw=true "yspyG")
-
+![yspyG](https://github.com/yspyG/AVR-Battery-Monitor/blob/master/etc/simple battery.png?raw=true "yspyG")
+![yspyG](https://github.com/yspyG/AVR-Battery-Monitor/blob/master/etc/battery with boost.png?raw=true "yspyG")
 
 This library utilizes the AVR's internal 1.1V bandgap reference to determine the actual voltage at its pins, it requires only a the connections shown in the schematic above. The shunt reistor is technically optional if you don't need the current measurements. For more information about how the library works check out the hackaday.io page here: https://hackaday.io/project/167181-lithium-ion-battery-monitor-library-for-arduino
 

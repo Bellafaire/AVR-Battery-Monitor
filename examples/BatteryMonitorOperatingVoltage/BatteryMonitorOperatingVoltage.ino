@@ -27,15 +27,20 @@
 
 #define batVoltagePin A0 //connect directly to positive terminal of the battery
 
-BatteryMonitor bat = BatteryMonitor(batVoltagePin);
-//
-/*   NOTE: if the arduino is powered directly from the battery then the AREF pin should be connected
-     directly to the positive terminal of the battery before the shunt resistor (if you're using one). if the
-     arduino is being powered from a boost converter connected to the battery than AREF should be connected to the output
-     of the boost converter.
+/*  Measuring the operating voltage of the arduino may be useful in situations where the 
+ *   arduino itself is powered by a boost converter in circuit or otherwise used to control an 
+ *   external boost converter. 
+ *   
+ *   NOTE: if the arduino is powered directly from the battery then the AREF pin should be connected
+ *   directly to the positive terminal of the battery before the shunt resistor (if you're using one). if the
+ *   arduino is being powered from a boost converter connected to the battery than AREF should be connected to the output 
+ *   of the boost converter.
+ *   
+ *   Essentially AREF should always be attached to the highest voltage in the circuit provided that it does not exceed 5.5V  
+ */
 
-     Essentially AREF should always be attached to the highest voltage in the circuit provided that it does not exceed 5.5V
-*/
+ //init a BatteryMonitor object and set the voltage measuring pin to our defenition above.
+BatteryMonitor bat = BatteryMonitor(batVoltagePin);
 
 void setup() {
 
@@ -43,7 +48,10 @@ void setup() {
 
 void loop() {
   if (bat.getCurrentBatteryVoltage() < 3.0) {
-    //something to do if the battery voltage is below 3.0v, it's that simple
+    //something to do if the battery voltage is below 3.0v
+    }
+  if(bat.getCurrentOperatingVoltage() < 4.0){
+    //something to do if the operating voltage is less than 4 volts. 
   }
 }
 
