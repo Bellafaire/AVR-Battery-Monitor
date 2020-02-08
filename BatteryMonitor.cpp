@@ -51,22 +51,10 @@ void BatteryMonitor::setCurrentSenseResistance(float r) {
 }
 
 int BatteryMonitor::readCurrentSense() {
-  //set adc to use AREF as reference
-  ADMUX = 0b00000000;
-
-  switch (_sensePin) {
-    case A0: ADMUX |= 0b00000000; break;
-    case A1: ADMUX |= 0b00000001; break;
-    case A2: ADMUX |= 0b00000010; break;
-    case A3: ADMUX |= 0b00000011; break;
-    case A4: ADMUX |= 0b00000100; break;
-    case A5: ADMUX |= 0b00000101; break;
-    case A6: ADMUX |= 0b00000110; break;
-    case A7: ADMUX |= 0b00000111; break;
-  }
+  selectPin(_sensePin);
+  
   ADCSRA |= (1 << ADEN) | (1 << ADSC);
   while (ADCSRA & (1 << ADSC)) {
-    delayMicroseconds(10);
   }
 
   int val = 0;
@@ -77,10 +65,24 @@ int BatteryMonitor::readCurrentSense() {
 }
 
 int BatteryMonitor::readBatteryVoltage() {
-  //set adc to use AREF as reference
-  ADMUX = 0b00000000;
 
-  switch (_batPin) {
+  selectPin(_batPin);
+  
+  ADCSRA |= (1 << ADEN) | (1 << ADSC);
+  while (ADCSRA & (1 << ADSC)) {
+  }
+
+  int val = 0;
+  val |= ADCL;
+  val |= (ADCH << 8);
+  return val;
+
+}
+
+void BatteryMonitor::selectPin(int pin) {
+	#if defined(__AVR_ATmega328P__) || defined(__AVR_ATmega168__)
+	ADMUX = 0b00000000;
+	switch (pin) {
     case A0: ADMUX |= 0b00000000; break;
     case A1: ADMUX |= 0b00000001; break;
     case A2: ADMUX |= 0b00000010; break;
@@ -90,16 +92,21 @@ int BatteryMonitor::readBatteryVoltage() {
     case A6: ADMUX |= 0b00000110; break;
     case A7: ADMUX |= 0b00000111; break;
   }
-  ADCSRA |= (1 << ADEN) | (1 << ADSC);
-  while (ADCSRA & (1 << ADSC)) {
-    delayMicroseconds(10);
+  
+  #elif defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
+  
+  #error "ATMEGA1280/2560 not currently supported by library, sorry.
+  
+  #elif defined(__AVR_ATtiny85__) || (__AVR_ATtiny45__) || (__AVR_ATtiny25__)
+  ADMUX = 0b00000000;
+  switch (pin) {
+    case A0: ADMUX |= 0b00000000; break;
+    case A1: ADMUX |= 0b00000001; break;
+    case A2: ADMUX |= 0b00000010; break;
   }
-
-  int val = 0;
-  val |= ADCL;
-  val |= (ADCH << 8);
-  return val;
-
+  
+  #endif
+	
 }
 
 int BatteryMonitor::readReference() {
@@ -110,7 +117,6 @@ int BatteryMonitor::readReference() {
 
   ADCSRA |= (1 << ADEN) | (1 << ADSC);
   while (ADCSRA & (1 << ADSC)) {
-    delayMicroseconds(10);
   }
 
   int ref = 0;

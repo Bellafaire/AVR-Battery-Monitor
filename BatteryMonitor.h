@@ -43,10 +43,13 @@ class BatteryMonitor {
 	
   private: 
 	int readBatteryVoltage();
+	void selectPin(int pin);
     int readReference();
 	int readCurrentSense();
-    int _batPin;
-    float _senseResistance = 0.05;
+    
+	//class variables
+	float _senseResistance = 0.05;
+	int _batPin;
     int _sensePin;
 };
 
