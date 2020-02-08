@@ -81,7 +81,12 @@ int BatteryMonitor::readBatteryVoltage() {
 
 void BatteryMonitor::selectPin(int pin) {
 	#if defined(__AVR_ATmega328P__) || defined(__AVR_ATmega168__)
-	ADMUX = 0b00000000;
+  if(_VCCREF){
+  ADMUX = 0b01000000;
+  }
+  else{
+	  ADMUX = 0b00000000;
+  }
 	switch (pin) {
     case A0: ADMUX |= 0b00000000; break;
     case A1: ADMUX |= 0b00000001; break;
@@ -98,7 +103,12 @@ void BatteryMonitor::selectPin(int pin) {
   #error "ATMEGA1280/2560 not currently supported by library, sorry.
   
   #elif defined(__AVR_ATtiny85__) || (__AVR_ATtiny45__) || (__AVR_ATtiny25__)
-  ADMUX = 0b00000000;
+  if(_VCCREF){
+  ADMUX = 0b01000000;
+  }
+  else{
+	  ADMUX = 0b00000000;
+  }
   switch (pin) {
     case A0: ADMUX |= 0b00000000; break;
     case A1: ADMUX |= 0b00000001; break;
@@ -112,7 +122,12 @@ void BatteryMonitor::selectPin(int pin) {
 int BatteryMonitor::readReference() {
 
   //set adc to use AREF as reference then select the internal reference as our ideal read
-  ADMUX = 0b00001110;
+  if(_VCCREF){
+  ADMUX = 0b01001110;
+  }
+  else{
+	  ADMUX = 0b00001110;
+  }
   delay(10);
 
   ADCSRA |= (1 << ADEN) | (1 << ADSC);
@@ -124,6 +139,10 @@ int BatteryMonitor::readReference() {
   ref |= (ADCH << 8);
   return ref;
 
+}
+
+void BatteryMonitor::refVCC(boolean b){
+	_VCCREF = b;
 }
 
 float BatteryMonitor::getCurrentBatteryVoltage() {

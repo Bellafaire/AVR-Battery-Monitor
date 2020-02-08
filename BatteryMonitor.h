@@ -40,6 +40,7 @@ class BatteryMonitor {
     float getCurrentBatteryVoltage();
 	float getCurrentOperatingVoltage();
     float getBatteryCurrent();
+	void refVCC(boolean b);
 	
   private: 
 	int readBatteryVoltage();
@@ -51,6 +52,7 @@ class BatteryMonitor {
 	float _senseResistance = 0.05;
 	int _batPin;
     int _sensePin;
+	boolean _VCCREF = true;
 };
 
 
