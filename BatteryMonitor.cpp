@@ -38,7 +38,19 @@ BatteryMonitor::BatteryMonitor(int batteryPin, int currentSensePin) {
 }
 
 float BatteryMonitor::getBatteryCurrent() {
+	#if defined(__AVR_ATtiny85__) || (__AVR_ATtiny45__) || (__AVR_ATtiny25__)
+		//so we do the same calculations but we perform them with integers instead to save memory 
+
+		int v = readBatteryVoltage() - readCurrentSense();
+		v = v * 11000;
+		int d = readReference() * (int)(_senseResistance * 100);
+		
+		return (float)(v / (d * 10));
+		
+	#else
   return ((1.1 * ((float)readBatteryVoltage() - (float)readCurrentSense())) / ((float)readReference() * (float)_senseResistance));
+	#endif
+ 
 }
 
 
@@ -100,7 +112,7 @@ void BatteryMonitor::selectPin(int pin) {
   
   #elif defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
   
-  #error "ATMEGA1280/2560 not currently supported by library, sorry.
+  //#error "ATMEGA1280/2560 not currently supported by library, sorry.
   
   #elif defined(__AVR_ATtiny85__) || (__AVR_ATtiny45__) || (__AVR_ATtiny25__)
   if(_VCCREF){
@@ -146,9 +158,27 @@ void BatteryMonitor::refVCC(boolean b){
 }
 
 float BatteryMonitor::getCurrentBatteryVoltage() {
+	#if defined(__AVR_ATtiny85__) || (__AVR_ATtiny45__) || (__AVR_ATtiny25__)
+		//so we do the same calculations but we perform them with integers instead to save memory 
+		
+		int v = 11 * readBatteryVoltage();
+		v = v / readReference();
+		
+		return ((float)v)/10;
+	#else
   return (((float)1.1 * (float)readBatteryVoltage()) / (float)readReference());
+	#endif
 }
 
 float BatteryMonitor::getCurrentOperatingVoltage() {
+		#if defined(__AVR_ATtiny85__) || (__AVR_ATtiny45__) || (__AVR_ATtiny25__)
+	
+		int v = 11 * 1024;
+			v = v / readReference();
+		
+		return ((float)v)/10;
+	
+	#else
   return (((float)1.1 * (float)1024) / (float)readReference());
+	#endif
 }
