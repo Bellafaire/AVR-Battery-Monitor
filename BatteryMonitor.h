@@ -28,29 +28,32 @@
 
 #include "Arduino.h"
 #include <avr/sleep.h>
-#include <avr/io.h>
-#include <util/delay.h>
+#include<avr/io.h>
+#include<util/delay.h>
 
-class BatteryMonitor
-{
-public:
-  BatteryMonitor(int batteryPin);
-  BatteryMonitor(int batteryPin, int currentSensePin);
-  void setCurrentSensePin(int currentSensePin);
-  void setCurrentSenseResistance(float r);
-  float getCurrentBatteryVoltage();
-  float getCurrentOperatingVoltage();
-  float getBatteryCurrent();
-  void refVCC(boolean r);
-
-private:
-  int readBatteryVoltage();
-  int readReference();
-  int readCurrentSense();
-  int _batPin;
-  float _senseResistance = 0.05;
-  int _sensePin;
-  boolean useVCCasREF = false;
+class BatteryMonitor {
+  public:
+    BatteryMonitor(int batteryPin);
+    BatteryMonitor(int batteryPin, int currentSensePin);
+    void setCurrentSensePin(int currentSensePin);
+    void setCurrentSenseResistance(float r);
+    float getCurrentBatteryVoltage();
+	float getCurrentOperatingVoltage();
+    float getBatteryCurrent();
+	void refVCC(boolean b);
+	
+  private: 
+	int readBatteryVoltage();
+	void selectPin(int pin);
+    int readReference();
+	int readCurrentSense();
+    
+	//class variables
+	float _senseResistance = 0.05;
+	int _batPin;
+    int _sensePin;
+	boolean _VCCREF = true;
 };
+
 
 #endif
