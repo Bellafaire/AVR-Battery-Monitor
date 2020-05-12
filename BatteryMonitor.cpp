@@ -25,160 +25,227 @@
 
 #include "BatteryMonitor.h"
 
-BatteryMonitor::BatteryMonitor(int batteryPin) {
+
+
+BatteryMonitor::BatteryMonitor(int batteryPin)
+{
   _batPin = batteryPin;
   pinMode(batteryPin, INPUT);
 }
 
-BatteryMonitor::BatteryMonitor(int batteryPin, int currentSensePin) {
+BatteryMonitor::BatteryMonitor(int batteryPin, int currentSensePin)
+{
   _batPin = batteryPin;
   pinMode(batteryPin, INPUT);
   _sensePin = currentSensePin;
   pinMode(_sensePin, INPUT);
 }
 
-float BatteryMonitor::getBatteryCurrent() {
-	#if defined(__AVR_ATtiny85__) || (__AVR_ATtiny45__) || (__AVR_ATtiny25__)
-		//so we do the same calculations but we perform them with integers instead to save memory 
-
-		int v = readBatteryVoltage() - readCurrentSense();
-		v = v * 11000;
-		int d = readReference() * (int)(_senseResistance * 100);
-		
-		return (float)(v / (d * 10));
-		
-	#else
+float BatteryMonitor::getBatteryCurrent()
+{
   return ((1.1 * ((float)readBatteryVoltage() - (float)readCurrentSense())) / ((float)readReference() * (float)_senseResistance));
-	#endif
- 
 }
 
-
-void BatteryMonitor::setCurrentSensePin(int currentSensePin) {
-  _sensePin = currentSensePin; pinMode(_sensePin, INPUT);
-
+void BatteryMonitor::setCurrentSensePin(int currentSensePin)
+{
+  _sensePin = currentSensePin;
+  pinMode(_sensePin, INPUT);
 }
-void BatteryMonitor::setCurrentSenseResistance(float r) {
+void BatteryMonitor::setCurrentSenseResistance(float r)
+{
   _senseResistance = r;
 }
 
-int BatteryMonitor::readCurrentSense() {
-  selectPin(_sensePin);
-  
+int BatteryMonitor::readCurrentSense()
+{
+
+#if defined(__AVR_ATtiny25__) || defined(__AVR_ATtiny45__) || defined(__AVR_ATtiny85__)
+  ADMUX = 0b00000000;
+  switch (_sensePin)
+  {
+  case PB2:
+    ADMUX |= 0b00000001;
+    break;
+  case PB3:
+    ADMUX |= 0b00000011;
+    break;
+  case PB4:
+    ADMUX |= 0b00000010;
+    break;
+  case PB5:
+    ADMUX |= 0b00000000;
+    break;
+  }
+#else
+
+  if (useVCCasREF)
+  {
+    //set VCC as reference for reading the battery voltage
+    ADMUX = 0b01000000;
+  }
+  else
+  {
+    //use aref as reference
+    ADMUX = 0b00000000;
+  }
+
+  switch (_sensePin)
+  {
+  case A0:
+    ADMUX |= 0b00000000;
+    break;
+  case A1:
+    ADMUX |= 0b00000001;
+    break;
+  case A2:
+    ADMUX |= 0b00000010;
+    break;
+  case A3:
+    ADMUX |= 0b00000011;
+    break;
+  case A4:
+    ADMUX |= 0b00000100;
+    break;
+  case A5:
+    ADMUX |= 0b00000101;
+    break;
+  case A6:
+    ADMUX |= 0b00000110;
+    break;
+  case A7:
+    ADMUX |= 0b00000111;
+    break;
+  }
+#endif
   ADCSRA |= (1 << ADEN) | (1 << ADSC);
-  while (ADCSRA & (1 << ADSC)) {
+  while (ADCSRA & (1 << ADSC))
+  {
+    delayMicroseconds(10);
   }
 
   int val = 0;
   val |= ADCL;
   val |= (ADCH << 8);
   return val;
-
 }
 
-int BatteryMonitor::readBatteryVoltage() {
+int BatteryMonitor::readBatteryVoltage()
+{
 
-  selectPin(_batPin);
-  
+#if defined(__AVR_ATtiny25__) || defined(__AVR_ATtiny45__) || defined(__AVR_ATtiny85__)
+  //set adc to use VCC as reference
+  ADMUX = 0b00000000;
+  switch (_sensePin)
+  {
+  case PB2:
+    ADMUX |= 0b00000001;
+    break;
+  case PB3:
+    ADMUX |= 0b00000011;
+    break;
+  case PB4:
+    ADMUX |= 0b00000010;
+    break;
+  case PB5:
+    ADMUX |= 0b00000000;
+    break;
+  }
+#else
+  if (useVCCasREF)
+  {
+    //set VCC as reference for reading the battery voltage
+    ADMUX = 0b01000000;
+  }
+  else
+  {
+    //use aref as reference
+    ADMUX = 0b00000000;
+  }
+  switch (_sensePin)
+  {
+  case A0:
+    ADMUX |= 0b00000000;
+    break;
+  case A1:
+    ADMUX |= 0b00000001;
+    break;
+  case A2:
+    ADMUX |= 0b00000010;
+    break;
+  case A3:
+    ADMUX |= 0b00000011;
+    break;
+  case A4:
+    ADMUX |= 0b00000100;
+    break;
+  case A5:
+    ADMUX |= 0b00000101;
+    break;
+  case A6:
+    ADMUX |= 0b00000110;
+    break;
+  case A7:
+    ADMUX |= 0b00000111;
+    break;
+  }
+#endif
+
   ADCSRA |= (1 << ADEN) | (1 << ADSC);
-  while (ADCSRA & (1 << ADSC)) {
+  while (ADCSRA & (1 << ADSC))
+  {
+    delayMicroseconds(10);
   }
 
   int val = 0;
   val |= ADCL;
   val |= (ADCH << 8);
   return val;
-
 }
 
-void BatteryMonitor::selectPin(int pin) {
-	#if defined(__AVR_ATmega328P__) || defined(__AVR_ATmega168__)
-  if(_VCCREF){
-  ADMUX = 0b01000000;
-  }
-  else{
-	  ADMUX = 0b00000000;
-  }
-	switch (pin) {
-    case A0: ADMUX |= 0b00000000; break;
-    case A1: ADMUX |= 0b00000001; break;
-    case A2: ADMUX |= 0b00000010; break;
-    case A3: ADMUX |= 0b00000011; break;
-    case A4: ADMUX |= 0b00000100; break;
-    case A5: ADMUX |= 0b00000101; break;
-    case A6: ADMUX |= 0b00000110; break;
-    case A7: ADMUX |= 0b00000111; break;
-  }
-  
-  #elif defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
-  
-  //#error "ATMEGA1280/2560 not currently supported by library, sorry.
-  
-  #elif defined(__AVR_ATtiny85__) || (__AVR_ATtiny45__) || (__AVR_ATtiny25__)
-  if(_VCCREF){
-  ADMUX = 0b01000000;
-  }
-  else{
-	  ADMUX = 0b00000000;
-  }
-  switch (pin) {
-    case A0: ADMUX |= 0b00000000; break;
-    case A1: ADMUX |= 0b00000001; break;
-    case A2: ADMUX |= 0b00000010; break;
-  }
-  
-  #endif
-	
-}
-
-int BatteryMonitor::readReference() {
-
-  //set adc to use AREF as reference then select the internal reference as our ideal read
-  if(_VCCREF){
-  ADMUX = 0b01001110;
-  }
-  else{
-	  ADMUX = 0b00001110;
-  }
+int BatteryMonitor::readReference()
+{
+#if defined(__AVR_ATtiny25__) || defined(__AVR_ATtiny45__) || defined(__AVR_ATtiny85__)
+  ADMUX = 0;           //reset ADMUX
+  ADMUX |= 0b00001100; //use vcc as reference and select V_BG to read reference
   delay(10);
+#else
+  if (useVCCasREF)
+  {
+    //set VCC as reference for reading the battery voltage
+    ADMUX = 0b01000000;
+  }
+  else
+  {
+    //use aref as reference
+    ADMUX = 0b00000000;
+  }
+  ADMUX |= 0b00001110;
+  delay(10);
+#endif;
 
   ADCSRA |= (1 << ADEN) | (1 << ADSC);
-  while (ADCSRA & (1 << ADSC)) {
+  while (ADCSRA & (1 << ADSC))
+  {
+    delayMicroseconds(10);
   }
 
   int ref = 0;
   ref |= ADCL;
   ref |= (ADCH << 8);
   return ref;
-
 }
 
-void BatteryMonitor::refVCC(boolean b){
-	_VCCREF = b;
+void BatteryMonitor::refVCC(boolean r)
+{
+  useVCCasREF = r;
 }
 
-float BatteryMonitor::getCurrentBatteryVoltage() {
-	#if defined(__AVR_ATtiny85__) || (__AVR_ATtiny45__) || (__AVR_ATtiny25__)
-		//so we do the same calculations but we perform them with integers instead to save memory 
-		
-		int v = 11 * readBatteryVoltage();
-		v = v / readReference();
-		
-		return ((float)v)/10;
-	#else
+float BatteryMonitor::getCurrentBatteryVoltage()
+{
   return (((float)1.1 * (float)readBatteryVoltage()) / (float)readReference());
-	#endif
 }
 
-float BatteryMonitor::getCurrentOperatingVoltage() {
-		#if defined(__AVR_ATtiny85__) || (__AVR_ATtiny45__) || (__AVR_ATtiny25__)
-	
-		int v = 11 * 1024;
-			v = v / readReference();
-		
-		return ((float)v)/10;
-	
-	#else
+float BatteryMonitor::getCurrentOperatingVoltage()
+{
   return (((float)1.1 * (float)1024) / (float)readReference());
-	#endif
 }
